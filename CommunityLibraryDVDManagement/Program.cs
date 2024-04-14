@@ -342,7 +342,7 @@ namespace CommunityLibraryDVDManagement
       }
       else
       {
-        Console.WriteLine("No members area currently renting this movie.");
+        Console.WriteLine("No members are currently renting this movie.");
       }
     }
 
