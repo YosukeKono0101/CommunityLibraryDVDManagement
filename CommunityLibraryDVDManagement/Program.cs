@@ -11,12 +11,21 @@ namespace CommunityLibraryDVDManagement
     {
       while(true)
       {
+        Console.WriteLine("====================================================");
         Console.WriteLine("Welcome to the Community Library Movie DVD Management System");
-        Console.WriteLine("1. Staff  Login");
-        Console.WriteLine("2. Member Login");
-        Console.WriteLine("3. Exit");
+        Console.WriteLine("====================================================");
+        Console.WriteLine("");
+        Console.WriteLine("Main Menu");
+        Console.WriteLine("-------------------------------------------------------------------------------------------");
+        Console.WriteLine("1. Staff ");
+        Console.WriteLine("2. Member");
+        Console.WriteLine("0. End the program");
         Console.Write("Please select an option: ");
-        int choice = Convert.ToInt32(Console.ReadLine());
+        if (!int.TryParse(Console.ReadLine(), out int choice) || choice < 0 || choice > 2)
+        {
+          Console.WriteLine("Invalid choice, please enter a valid number.");
+          continue;
+        }
 
         switch (choice)
         {
@@ -26,7 +35,7 @@ namespace CommunityLibraryDVDManagement
           case 2:
             MemberLogin();
             break;
-          case 3:
+          case 0:
             return;
           default:
             Console.WriteLine("Invalid choice, please try again.");
@@ -38,9 +47,15 @@ namespace CommunityLibraryDVDManagement
     static void StaffLogin()
     {
       Console.Write("Enter username: ");
-      string username = Console.ReadLine();
+      string username = Console.ReadLine()?.Trim();
       Console.Write("Enter password: ");
-      string password = Console.ReadLine();
+      string password = Console.ReadLine()?.Trim();
+
+      if(string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
+      {
+        Console.WriteLine("Username or password cannot be empty.");
+        return;
+      }
 
       if(username == "staff" && password == "today123")
       {
@@ -57,17 +72,22 @@ namespace CommunityLibraryDVDManagement
       while(true)
       {
         Console.WriteLine("\nStaff Menu");
-        Console.WriteLine("1. Add a new movie DVD ");
-        Console.WriteLine("2. Remove a movie DVD");
-        Console.WriteLine("3. Register a new member");
-        Console.WriteLine("4. Remove a member");
-        Console.WriteLine("5. Find a member's phone number");
-        Console.WriteLine("6. Find members renting a specific movie");
-        Console.WriteLine("7. Exit");
+        Console.WriteLine("----------------------------------------------------");
+        Console.WriteLine("1. Add DVDs to system");
+        Console.WriteLine("2. Remove DVDs from system");
+        Console.WriteLine("3. Register a new member to system");
+        Console.WriteLine("4. Remove a registered member from system");
+        Console.WriteLine("5. Find a member contact phone number, given the member's name");
+        Console.WriteLine("6. Find members who are currently renting a particular movie");
+        Console.WriteLine("0. Return to main menu");
         Console.Write("Select an option: ");
-        int choice = Convert.ToInt32(Console.ReadLine());
+        if (!int.TryParse(Console.ReadLine(), out int choice) || choice < 0 || choice > 6)
+        {
+          Console.WriteLine("Invalid choice, please enter a valid number.");
+          continue;
+        }
 
-         switch (choice)
+        switch (choice)
         {
           case 1:
             AddMovie();
@@ -87,7 +107,7 @@ namespace CommunityLibraryDVDManagement
           case 6:
             FindMembersRentingMovie();
             break;
-          case 7:
+          case 0:
             return;
           default:
             Console.WriteLine("Invalid Choice, please try again.");
@@ -99,11 +119,17 @@ namespace CommunityLibraryDVDManagement
     static void MemberLogin()
     {
       Console.Write("Enter first name: ");
-      string firstName = Console.ReadLine();
+      string firstName = Console.ReadLine()?.Trim();
       Console.Write("Enter last name: ");
-      string lastName = Console.ReadLine();
+      string lastName = Console.ReadLine()?.Trim();
       Console.Write("Enter password: ");
-      string password = Console.ReadLine();
+      string password = Console.ReadLine()?.Trim();
+
+      if(string.IsNullOrEmpty(firstName) || string.IsNullOrEmpty(lastName) || string.IsNullOrEmpty(password))
+      {
+        Console.WriteLine("First name, last name, and password fields cannot be empty.");
+        return;
+      }
 
       Member member = memberCollection.FindMember(firstName, lastName);
       if (member != null && member.Password == password)
@@ -112,7 +138,7 @@ namespace CommunityLibraryDVDManagement
       }
       else
       {
-        Console.WriteLine("Incorrect login details.");
+        Console.WriteLine("Incorrect login details. Please check your username and password.");
       }
     }
 
@@ -121,14 +147,20 @@ namespace CommunityLibraryDVDManagement
       while(true)
       {
         Console.WriteLine("\nMember Menu");
-        Console.WriteLine("1. Browse all movies");
-        Console.WriteLine("2. Borrow a movie DVD");
-        Console.WriteLine("3. Return a movie DVD");
-        Console.WriteLine("4. List current borrowed movie DVDs");
-        Console.WriteLine("5. Display the top three movies");
-        Console.WriteLine("6. Exit");
+        Console.WriteLine("----------------------------------------------------");
+        Console.WriteLine("1. Browse all the movies");
+        Console.WriteLine("2. Display all the information about a movie, given the title of the movie");
+        Console.WriteLine("3. Borrow a movie DVD");
+        Console.WriteLine("4. Return a movie DVD");
+        Console.WriteLine("5. List current borrowing movies");
+        Console.WriteLine("6. Display the top 3 movies rented by the members");
+        Console.WriteLine("0. Return to main menu");
         Console.Write("Select an option: ");
-        int choice = Convert.ToInt32(Console.ReadLine());
+        if (!int.TryParse(Console.ReadLine(), out int choice) || choice < 0 || choice > 6)
+        {
+          Console.WriteLine("Invalid choice, please enter a valid number.");
+          continue;
+        }
 
         switch (choice)
         {
@@ -136,18 +168,21 @@ namespace CommunityLibraryDVDManagement
             BrowseMovies();
             break;
           case 2:
-            BorrowMovie(member);
+            DisplayMovieInformation();
             break;
           case 3:
-            ReturnMovie(member);
+            BorrowMovie(member);
             break;
           case 4:
-            ListBorrowedMovies(member);
+            ReturnMovie(member);
             break;
           case 5:
-            DisplayTopMovies();
+            ListBorrowedMovies(member);
             break;
           case 6:
+            DisplayTopMovies();
+            break;
+          case 0:
             return;
           default:
             Console.WriteLine("Invalid choice, please try again."); 
@@ -160,15 +195,33 @@ namespace CommunityLibraryDVDManagement
     static void AddMovie()
     {
       Console.Write("Enter movie title: ");
-      string title = Console.ReadLine();
-      Console.Write("Enter movie genre: ");
-      string genre = Console.ReadLine();
-      Console.Write("Enter movie classification (G, PG, M15+, MA15+): ");
-      string classification = Console.ReadLine();
-      Console.Write("Enter movie duration in minutes: ");
-      if (!int.TryParse(Console.ReadLine(), out int duration))
+      string title = Console.ReadLine().Trim();
+      if (string.IsNullOrEmpty(title))
       {
-        Console.WriteLine("Invalid input for duration. Please enter a valid number.");
+        Console.WriteLine("Movie title cannot be empty.");
+        return;
+      }
+
+      Console.Write("Enter movie genre: ");
+      string genre = Console.ReadLine().Trim();
+      if (string.IsNullOrEmpty(genre))
+      {
+        Console.WriteLine("Genre cannot be empty.");
+        return;
+      }
+
+      Console.Write("Enter movie classification (G, PG, M15+, MA15+): ");
+      string classification = Console.ReadLine().Trim();
+      if (string.IsNullOrEmpty(classification))
+      {
+        Console.WriteLine("Classification cannot be empty.");
+        return;
+      }
+
+      Console.Write("Enter movie duration in minutes: ");
+      if (!int.TryParse(Console.ReadLine(), out int duration) || duration <= 0)
+      {
+        Console.WriteLine("Invalid input for duration. Please enter a valid positve number.");
         return;
       }
 
@@ -178,9 +231,9 @@ namespace CommunityLibraryDVDManagement
       {
         // if the movie does exist, add the number of copies
         Console.Write("Enter additional number of copies: ");
-        if (!int.TryParse(Console.ReadLine(), out int additionalCopies))
+        if (!int.TryParse(Console.ReadLine(), out int additionalCopies) || additionalCopies <= 0)
         {
-          Console.WriteLine("Invalid input for copies available. Please enter a valid number.");
+          Console.WriteLine("Invalid input for copies available. Please enter a valid positive number.");
           return;
         }
         existingMovie.AvailableCopies += additionalCopies;
@@ -190,9 +243,9 @@ namespace CommunityLibraryDVDManagement
       {
         // if the movie does not exist, add the new movie
         Console.Write("Enter number of copies available: ");
-        if (!int.TryParse(Console.ReadLine(), out int availableCopies))
+        if (!int.TryParse(Console.ReadLine(), out int availableCopies) || availableCopies <= 0)
         {
-          Console.WriteLine("Invalid input for copies available. Please enter a valid number.");
+          Console.WriteLine("Invalid input for copies available. Please enter a valid positive number.");
           return;
         }
         Movie newMovie = new Movie(title, genre, classification, duration, availableCopies);
@@ -205,9 +258,14 @@ namespace CommunityLibraryDVDManagement
     static void RemoveMovie()
     {
       Console.Write("Enter the title of the movie to remove copies from: ");
-      string title = Console.ReadLine();
-      Movie movie = movieCollection.FindMovie(title);
+      string title = Console.ReadLine()?.Trim();
+      if (string.IsNullOrEmpty(title))
+      {
+        Console.WriteLine("Movie title cannot be empty.");
+        return;
+      }
 
+      Movie movie = movieCollection.FindMovie(title);
       if(movie == null)
       {
         Console.WriteLine("Movie not found.");
@@ -215,15 +273,20 @@ namespace CommunityLibraryDVDManagement
       }
 
       Console.Write($"Enter the number of copies to remove (currently {movie.AvailableCopies} available): ");
-      if(!int.TryParse(Console.ReadLine(), out int copiesToRemove))
+      if(!int.TryParse(Console.ReadLine(), out int copiesToRemove) || copiesToRemove < 0)
       {
-        Console.WriteLine("Invalid input. Please enter a valid number.");
+        Console.WriteLine("Invalid input. Please enter a valid positive number.");
         return;
       }
 
       if(copiesToRemove > movie.AvailableCopies)
       {
         Console.WriteLine("Cannot remove more copies than are available.");
+        return;
+      }
+      else if (copiesToRemove == 0)
+      {
+        Console.WriteLine("No copies removed. Please enter a number greater than 0.");
         return;
       }
 
@@ -247,9 +310,15 @@ namespace CommunityLibraryDVDManagement
     static void RegisterMember()
     {
       Console.Write("Enter first name: ");
-      string firstName = Console.ReadLine();
+      string firstName = Console.ReadLine()?.Trim();
       Console.Write("Enter last name: ");
-      string lastName = Console.ReadLine();
+      string lastName = Console.ReadLine()?.Trim();
+
+      if(string.IsNullOrEmpty(firstName) || string.IsNullOrEmpty(lastName))
+      {
+        Console.WriteLine("First name or last name cannot be empty.");
+        return;
+      }
      
       // Check if member already exists
       if (memberCollection.FindMember(firstName, lastName) != null)
@@ -259,9 +328,10 @@ namespace CommunityLibraryDVDManagement
       }
 
       Console.Write("Enter contact number: ");
-      string contactNumber = Console.ReadLine();
+      string contactNumber = Console.ReadLine()?.Trim();
       Console.Write("Set a four-digit password for the member: ");
-      string password = Console.ReadLine();
+      string password = Console.ReadLine()?.Trim();
+
       if (password.Length != 4 || !int.TryParse(password, out _))
       {
         Console.WriteLine("Invalid password. Please enter a four-digit password.");
@@ -277,9 +347,15 @@ namespace CommunityLibraryDVDManagement
     static void RemoveMember()
     {
       Console.Write("Enter first name of the member to remove: ");
-      string firstName = Console.ReadLine();
+      string firstName = Console.ReadLine()?.Trim();
       Console.Write("Enter last name of the member to remove: ");
-      string lastName = Console.ReadLine();
+      string lastName = Console.ReadLine()?.Trim();
+      if(string.IsNullOrEmpty(firstName) || string.IsNullOrEmpty(lastName))
+      {
+        Console.WriteLine("First name and last name cannot be empoty.");
+        return;
+      }
+
       Member member = memberCollection.FindMember(firstName, lastName);
 
       if (member == null)
@@ -293,6 +369,7 @@ namespace CommunityLibraryDVDManagement
       {
         Console.WriteLine("This member cannot be removed because they still have borrowed DVDs.");
         Console.WriteLine("Please ensure all DVDs are returned before attempting to remove this member.");
+        return;
       }
       else
       {
@@ -312,9 +389,15 @@ namespace CommunityLibraryDVDManagement
     static void FindMemberPhoneNumber()
     {
       Console.Write("Enter the first name of the member: ");
-      string firstName = Console.ReadLine();
+      string firstName = Console.ReadLine()?.Trim();
       Console.Write("Enter the last name of the member: ");
-      string lastName = Console.ReadLine();
+      string lastName = Console.ReadLine()?.Trim();
+      if(string.IsNullOrEmpty(firstName) || string.IsNullOrEmpty(lastName))
+      {
+        Console.WriteLine("First name and last name cannot be empoty.");
+        return;
+      }
+
       Member member = memberCollection.FindMember(firstName, lastName);
       if (member != null)
       {
@@ -322,7 +405,7 @@ namespace CommunityLibraryDVDManagement
       }
       else
       {
-        Console.WriteLine("Member not found.");
+        Console.WriteLine("Member not found. Please check the spelling and try again.");
       }
     }
 
@@ -330,7 +413,13 @@ namespace CommunityLibraryDVDManagement
     static void FindMembersRentingMovie()
     {
       Console.Write("Enter the movie title to find renting members: ");
-      string movieTitle = Console.ReadLine();
+      string movieTitle = Console.ReadLine()?.Trim();
+      if (string.IsNullOrEmpty(movieTitle))
+      {
+        Console.WriteLine("Movie title cannot be empoty.");
+        return;
+      }
+
       var rentingMembers = memberCollection.FindMembersWithMovie(movieTitle);
       if (rentingMembers.Count > 0)
       {
@@ -356,6 +445,9 @@ namespace CommunityLibraryDVDManagement
         return;
       }
 
+      // sort movie DVDs in dictonary order by movie title
+      movies.Sort((x, y) => x.Title.CompareTo(y.Title));
+
       Console.WriteLine("Available Movies:");
       Console.WriteLine("--------------------------------------------------------------------------------");
       Console.WriteLine(String.Format("{0,-30} {1,-10} {2,-10} {3,10} {4,15}", "Title", "Genre", "Class", "Duration", "Copies Available"));
@@ -367,19 +459,56 @@ namespace CommunityLibraryDVDManagement
       Console.WriteLine("--------------------------------------------------------------------------------");
     }
 
+    // display info about a movie
+    static void DisplayMovieInformation()
+    {
+      Console.Write("Enter the title of the movie you want information about: ");
+      string title = Console.ReadLine()?.Trim();
+      if (string.IsNullOrEmpty(title))
+      {
+        Console.WriteLine("Movie title cannot be empoty.");
+        return;
+      }
+      Movie movie = movieCollection.FindMovie(title);
+      if (movie != null)
+      {
+        Console.WriteLine("Movie Details:");
+        Console.WriteLine($"Title: {movie.Title}");
+        Console.WriteLine($"Genre: {movie.Genre}");
+        Console.WriteLine($"Classification: {movie.Classification}");
+        Console.WriteLine($"Duration: {movie.Duration} minutes");
+        Console.WriteLine($"Available Copies: {movie.AvailableCopies}");
+        Console.WriteLine($"Total Times Borrowed: {movie.BorrowCount}");
+      }
+      else
+      {
+        Console.WriteLine("Movie not found. Please check the title and try again.");
+      }
+    }
 
     // borrow movie
-    static void BorrowMovie(Member member)
+     static void BorrowMovie(Member member)
     {
       Console.Write("Enter the title of the movie you want to borrow: ");
-      string title = Console.ReadLine();
+      string title = Console.ReadLine()?.Trim();
+      if (string.IsNullOrEmpty(title))
+      {
+        Console.WriteLine("Movie title cannot be empty.");
+        return;
+      }
+
       Movie movie = movieCollection.FindMovie(title);
       if (movie != null && movie.AvailableCopies > 0)
       {
-        member.BorrowMovie(title);
-        movie.BorrowCount++;
-        movie.AvailableCopies--;
-        Console.WriteLine("Movie borrowed successfully.");
+        if (member.BorrowMovie(title))  // Checks if borrowing was successful
+        {
+          movie.AvailableCopies--;
+          Console.WriteLine("Movie borrowed successfully.");
+        }
+      }
+      else if (movie != null && movie.AvailableCopies == 0)
+      {
+        Console.WriteLine("No copies of the movie are currently available.");
       }
       else
       {
@@ -391,7 +520,13 @@ namespace CommunityLibraryDVDManagement
     static void ReturnMovie(Member member)
     {
       Console.Write("Enter the title of the movie you want to return: ");
-      string title = Console.ReadLine();
+      string title = Console.ReadLine()?.Trim();
+      if (string.IsNullOrEmpty(title))
+      {
+        Console.WriteLine("Movie title cannot be empty.");
+        return;
+      }
+
       if (member.ReturnMovie(title))
       {
         Movie movie = movieCollection.FindMovie(title);
@@ -399,6 +534,10 @@ namespace CommunityLibraryDVDManagement
         {
           movie.AvailableCopies++;
           Console.WriteLine("Movie returned successfully.");
+        }
+        else
+        {
+          Console.WriteLine("Error: The movie could not be found in the system.");
         }
       }
       else
