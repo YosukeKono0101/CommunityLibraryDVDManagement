@@ -128,84 +128,73 @@ namespace CommunityLibraryDVDManagement
         // Displays the top three most borrowed movies.
         public void DisplayTopThreeBorrowedMovies()
         {
-            // Retrieve all movies from the hash table.
-            Movie[] movies = GetAllMovies();
-            // Sort the movies based on borrow count using QuickSort.
-            QuickSort(movies, 0, movies.Length - 1);
-            // Determine the number of movies to display (up to 3).
-            int count = Math.Min(3, movies.Length);
-            Console.WriteLine("Top 3 Borrowed Movies:");
-            for (int i = 0; i < count; i++)
+            // Initialize variables to keep track of top three movies.
+            Movie top1 = null;
+            Movie top2 = null;
+            Movie top3 = null;
+
+            // Iterate through all movies to find the top three.
+            foreach (var movie in GetAllMovies())
             {
-                Console.WriteLine($"{movies[i].Title} - Borrowed {movies[i].BorrowCount} times");
+                if (movie == null) continue;
+
+                if (top1 == null || movie.BorrowCount > top1.BorrowCount)
+                {
+                    top3 = top2;
+                    top2 = top1;
+                    top1 = movie;
+                }
+                else if (top2 == null || movie.BorrowCount > top2.BorrowCount)
+                {
+                    top3 = top2;
+                    top2 = movie;
+                }
+                else if (top3 == null || movie.BorrowCount > top3.BorrowCount)
+                {
+                    top3 = movie;
+                }
             }
+
+            Console.WriteLine("Top 3 Most Borrowed Movies:");
+            if (top1 != null)
+                Console.WriteLine($"{top1.Title} - Borrowed {top1.BorrowCount} times");
+            if (top2 != null)
+                Console.WriteLine($"{top2.Title} - Borrowed {top2.BorrowCount} times");
+            if (top3 != null)
+                Console.WriteLine($"{top3.Title} - Borrowed {top3.BorrowCount} times");
         }
 
         // Retrieves all movies from the hash table and returns them as an array.
         public Movie[] GetAllMovies()
         {
-            Movie[] movies = new Movie[size];
-            int index = 0;
+            // First Pass: Count the total number of movies 
+            int totalMovies = 0;
             foreach (var bucket in buckets)
             {
                 Node current = bucket;
                 while (current != null)
                 {
-                    if (index < size)
-                    {
-                        // Collect movies from each linked list.
-                        movies[index++] = current.Data;
-                    }
+                    totalMovies++;
                     current = current.Next;
                 }
             }
-            // Resize the array to the actual number of movies.
-            Array.Resize(ref movies, index);
-            return movies;
-        }
 
-        // Recursive QuickSort algorithm to sort movies by borrow count in descending order.
-        private void QuickSort(Movie[] movies, int low, int high)
-        {
-            if (low < high)
-            {
-                // Partition the array and get the pivot index.
-                int pi = Partition(movies, low, high);
-                // Recursively sort the left subarray.
-                QuickSort(movies, low, pi - 1);
-                // Recursively sort the right subarray.
-                QuickSort(movies, pi + 1, high);
-            }
-        }
+            // Allocate an array with the exact size needed
+            Movie[] movies = new Movie[totalMovies];
+            int index = 0;
 
-        // Partition function used by QuickSort to rearrange the array.
-        private int Partition(Movie[] movies, int low, int high)
-        {
-            // Choose the last element as pivot.
-            Movie pivot = movies[high];
-            int i = low - 1;
-            for (int j = low; j < high; j++)
+            // Second Pass: Populate the array with movie data
+            foreach (var bucket in buckets)
             {
-                // If current movie has more borrows than pivot,
-                if (movies[j].BorrowCount > pivot.BorrowCount)
+                Node current = bucket;
+                while (current != null)
                 {
-                    // increment index of smaller element.
-                    i++;
-                    // Swap the current element with the element at index i.
-                    Swap(movies, i, j);
+                    movies[index++] = current.Data;
+                    current = current.Next;
                 }
             }
-            // Swap the pivot element with the element at index i+1.
-            Swap(movies, i + 1, high);
-            return i + 1;
-        }
 
-        // Swaps two elements in the array of movies.
-        private void Swap(Movie[] movies, int i, int j)
-        {
-            Movie temp = movies[i];
-            movies[i] = movies[j];
-            movies[j] = temp;
+            return movies;
         }
     }
 }
